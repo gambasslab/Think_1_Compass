@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>나침반 사고 활동지</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root{
+  --paper:#EAF0EA; --sheet:#FBFDFB; --ink:#1F2A44; --muted:#5C6780; --line:#C9D3CB;
+  --east:#D99A1E; --east-bg:#FDF3DD;
+  --west:#3F6AA8; --west-bg:#E3ECF8;
+  --north:#C33A2E; --north-bg:#FBE6E3;
+  --south:#2F8A5B; --south-bg:#E0F2E8;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#141B24; --sheet:#1C2532; --ink:#E8EDF5; --muted:#A3AEC2; --line:#34404F;
+    --east:#F0B847; --east-bg:#3A3020; --west:#7FA6E0; --west-bg:#1F2C40;
+    --north:#EE7366; --north-bg:#3D2321; --south:#5CC48D; --south-bg:#1D3529;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#141B24; --sheet:#1C2532; --ink:#E8EDF5; --muted:#A3AEC2; --line:#34404F;
+  --east:#F0B847; --east-bg:#3A3020; --west:#7FA6E0; --west-bg:#1F2C40;
+  --north:#EE7366; --north-bg:#3D2321; --south:#5CC48D; --south-bg:#1D3529;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;font-size:17px;line-height:1.6;
+  background-image:repeating-radial-gradient(circle at 85% 10%, transparent 0 38px, color-mix(in srgb,var(--line) 45%,transparent) 38px 39px);
+}
+h1,h2,h3,.jua{font-family:"Jua","Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-weight:400}
+.wrap{max-width:1080px;margin:0 auto;padding:20px 16px 40px}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+header h1{font-size:2.1rem;margin:0;line-height:1.2}
+header p{margin:4px 0 0;color:var(--muted)}
+.who{display:flex;gap:8px;flex-wrap:wrap}
+.who input{width:120px}
+input,textarea{font:inherit;color:var(--ink);background:var(--sheet);border:2px solid var(--line);border-radius:10px;padding:8px 12px;width:100%}
+input:focus,textarea:focus{outline:none;border-color:var(--ink)}
+button:focus-visible,a:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+label.small{font-size:.85rem;color:var(--muted);display:block;margin-bottom:2px}
+
+#sheet{background:var(--sheet);border:2px solid var(--line);border-radius:18px;padding:18px}
+.article{display:grid;grid-template-columns:2fr 1fr;gap:10px;margin-bottom:10px}
+.article .full{grid-column:1/-1}
+.board{display:grid;gap:14px;grid-template-columns:1fr 200px 1fr;
+  grid-template-areas:"n n n" "w c e" "s s s";margin-top:6px}
+.dir{border-radius:14px;padding:12px 14px;border:2px solid transparent;position:relative;transition:border-color .2s}
+.dir h2{margin:0;font-size:1.35rem;display:flex;align-items:baseline;gap:8px}
+.dir h2 .tag{font-size:.95rem;opacity:.85}
+.dir .q{margin:2px 0 8px;color:var(--muted);font-size:.95rem}
+.dir textarea{min-height:110px;resize:vertical;background:var(--sheet)}
+.dir.done{border-color:currentColor}
+.n{grid-area:n;background:var(--north-bg);color:var(--north)}
+.e{grid-area:e;background:var(--east-bg);color:var(--east)}
+.w{grid-area:w;background:var(--west-bg);color:var(--west)}
+.s{grid-area:s;background:var(--south-bg);color:var(--south)}
+.dir textarea,.dir .hints{color:var(--ink)}
+.hint-btn{position:absolute;top:10px;right:12px;background:none;border:1.5px solid currentColor;color:inherit;border-radius:999px;font:inherit;font-size:.82rem;padding:2px 10px;cursor:pointer}
+.hints{display:none;margin:0 0 8px;padding-left:20px;font-size:.92rem}
+.dir.open .hints{display:block}
+.center{grid-area:c;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.center svg{width:170px;height:170px}
+.center .count{font-family:"Jua",sans-serif;font-size:1.1rem;margin-top:4px}
+.arm{fill:var(--line);transition:fill .35s}
+.arm.on.an{fill:var(--north)} .arm.on.ae{fill:var(--east)} .arm.on.aw{fill:var(--west)} .arm.on.as{fill:var(--south)}
+.ring{fill:none;stroke:var(--line);stroke-width:3}
+.lbl{font-family:"Jua",sans-serif;font-size:16px;fill:var(--muted)}
+
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.actions button{font:inherit;font-family:"Jua",sans-serif;font-size:1.05rem;padding:10px 18px;border-radius:12px;border:2px solid var(--ink);background:var(--sheet);color:var(--ink);cursor:pointer}
+.actions button.primary{background:var(--ink);color:var(--sheet)}
+.actions .spacer{flex:1}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--sheet);padding:10px 18px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .25s}
+.toast.show{opacity:1}
+
+@media (max-width:760px){
+  .board{grid-template-columns:1fr;grid-template-areas:"c" "e" "w" "n" "s"}
+  .center svg{width:130px;height:130px}
+  .article{grid-template-columns:1fr}
+  header h1{font-size:1.8rem}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media print{
+  body{background:#fff}.actions,.hint-btn,.toast{display:none!important}
+  #sheet{border:none;padding:0}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>나침반 사고 활동지</h1>
+      <p>기사를 네 방향에서 살펴보며 내 생각을 정리해요.</p>
+    </div>
+    <div class="who">
+      <div><label class="small" for="team">모둠</label><input id="team" placeholder="예: 3모둠"></div>
+      <div><label class="small" for="num">번호</label><input id="num" placeholder="예: 12"></div>
+      <div><label class="small" for="nick">이름</label><input id="nick" placeholder="이름"></div>
+    </div>
+  </header>
+
+  <section id="sheet">
+    <div class="article">
+      <div><label class="small" for="atitle">기사 제목</label><input id="atitle" placeholder="읽은 기사의 제목"></div>
+      <div><label class="small" for="apress">신문사</label><input id="apress" placeholder="예: ○○일보"></div>
+      <div class="full"><label class="small" for="asum">한 줄 요약</label><input id="asum" placeholder="이 기사는 무엇에 대한 이야기인가요?"></div>
+    </div>
+
+    <div class="board">
+      <div class="dir e" data-k="e">
+        <h2>동 <span class="tag">좋은 점</span></h2>
+        <p class="q">이 기사에서 좋다고 생각한 점은?</p>
+        <button class="hint-btn" type="button">도움 질문</button>
+        <ul class="hints"><li>기사가 잘 알려 준 사실은 무엇인가요?</li><li>이 일로 좋아지는 사람이나 상황은?</li><li>기사에서 믿을 만한 근거는?</li></ul>
+        <textarea aria-label="좋은 점"></textarea>
+      </div>
+      <div class="dir w" data-k="w">
+        <h2>서 <span class="tag">우려되는 점</span></h2>
+        <p class="q">걱정되거나 이상하다고 느낀 점은?</p>
+        <button class="hint-btn" type="button">도움 질문</button>
+        <ul class="hints"><li>이 일로 어려움을 겪는 사람은 없나요?</li><li>한쪽 입장만 나와 있지는 않나요?</li><li>제목이 내용보다 과장되지는 않았나요?</li></ul>
+        <textarea aria-label="우려되는 점"></textarea>
+      </div>
+      <div class="dir n" data-k="n">
+        <h2>북 <span class="tag">필요한 것</span></h2>
+        <p class="q">더 알아야 할 정보나 필요한 것은?</p>
+        <button class="hint-btn" type="button">도움 질문</button>
+        <ul class="hints"><li>기사에 빠진 사람의 목소리는?</li><li>사실인지 확인하려면 무엇을 더 찾아봐야 할까요?</li><li>다른 신문사는 이 일을 어떻게 썼을까요?</li></ul>
+        <textarea aria-label="필요한 것"></textarea>
+      </div>
+      <div class="dir s" data-k="s">
+        <h2>남 <span class="tag">제안</span></h2>
+        <p class="q">더 나아지려면 어떻게 하면 좋을까?</p>
+        <button class="hint-btn" type="button">도움 질문</button>
+        <ul class="hints"><li>문제를 해결할 방법은?</li><li>나 또는 우리 반이 할 수 있는 일은?</li><li>기자에게 한마디 제안한다면?</li></ul>
+        <textarea aria-label="제안"></textarea>
+      </div>
+
+      <div class="center" aria-live="polite">
+        <svg viewBox="0 0 200 200" role="img" aria-label="채운 방향 표시 나침반">
+          <circle class="ring" cx="100" cy="100" r="74"/>
+          <polygon class="arm an" points="100,30 112,100 88,100"/>
+          <polygon class="arm as" points="100,170 112,100 88,100"/>
+          <polygon class="arm ae" points="170,100 100,112 100,88"/>
+          <polygon class="arm aw" points="30,100 100,112 100,88"/>
+          <circle cx="100" cy="100" r="9" fill="var(--sheet)" stroke="var(--ink)" stroke-width="3"/>
+          <text class="lbl" x="100" y="18" text-anchor="middle">북</text>
+          <text class="lbl" x="100" y="196" text-anchor="middle">남</text>
+          <text class="lbl" x="190" y="106" text-anchor="middle">동</text>
+          <text class="lbl" x="10" y="106" text-anchor="middle">서</text>
+        </svg>
+        <div class="count" id="count">0 / 4 방향</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="actions">
+    <button class="primary" id="submitBtn" type="button">선생님께 제출하기</button>
+    <button id="copyBtn" type="button">글로 복사하기</button>
+    <button id="imgBtn" type="button">이미지로 저장</button>
+    <button id="printBtn" type="button">인쇄하기</button>
+    <span class="spacer"></span>
+    <button id="resetBtn" type="button">새로 쓰기</button>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+// ▼ 구글 Apps Script 웹 앱 URL을 따옴표 안에 붙여 넣으세요. 비워 두면 제출 버튼이 숨겨집니다.
+const SCRIPT_URL='';
+const KEY='compass-worksheet-v1';
+const fields=['team','num','nick','atitle','apress','asum'];
+const dirs={e:'동(좋은 점)',w:'서(우려되는 점)',n:'북(필요한 것)',s:'남(제안)'};
+const $=s=>document.querySelector(s);
+const ta=k=>document.querySelector(`.dir[data-k="${k}"] textarea`);
+
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2000)}
+function state(){const o={};fields.forEach(f=>o[f]=$('#'+f).value);Object.keys(dirs).forEach(k=>o[k]=ta(k).value);return o}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state()))}catch(e){}}
+function load(){try{const o=JSON.parse(localStorage.getItem(KEY)||'{}');fields.forEach(f=>{if(o[f])$('#'+f).value=o[f]});Object.keys(dirs).forEach(k=>{if(o[k])ta(k).value=o[k]})}catch(e){}}
+function refresh(){
+  let c=0;
+  Object.keys(dirs).forEach(k=>{
+    const on=ta(k).value.trim().length>0; if(on)c++;
+    document.querySelector(`.dir[data-k="${k}"]`).classList.toggle('done',on);
+    document.querySelector('.a'+k).classList.toggle('on',on);
+  });
+  $('#count').textContent=c===4?'네 방향 완성!':`${c} / 4 방향`;
+}
+function asText(){
+  const o=state();
+  let t=`[나침반 사고] ${o.team||''} ${o.num?o.num+'번':''} ${o.nick||''}`.trim()+'\n';
+  t+=`기사: ${o.atitle||'(제목 없음)'}${o.apress?' / '+o.apress:''}\n`;
+  if(o.asum)t+=`한 줄 요약: ${o.asum}\n`;
+  Object.entries(dirs).forEach(([k,l])=>t+=`\n${l}\n${o[k]||'-'}\n`);
+  return t;
+}
+async function offerFile(filename,data){
+  if(window.claude&&window.claude.use){
+    const dl=await window.claude.use('downloads');
+    if(!dl){toast('이 화면에서는 저장할 수 없어요. 글로 복사하기를 써 주세요.');return}
+    try{await dl.save({filename,data});toast('저장했어요')}
+    catch(e){if(e&&e.code!=='declined')toast('저장하지 못했어요. 글로 복사하기를 써 주세요.')}
+    return;
+  }
+  const a=document.createElement('a');a.href=URL.createObjectURL(data);a.download=filename;a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),2000);toast('저장했어요');
+}
+
+load();refresh();
+document.addEventListener('input',()=>{refresh();save()});
+document.querySelectorAll('.hint-btn').forEach(b=>b.addEventListener('click',()=>{
+  const d=b.closest('.dir');d.classList.toggle('open');b.textContent=d.classList.contains('open')?'접기':'도움 질문';
+}));
+$('#copyBtn').addEventListener('click',async()=>{
+  const t=asText();
+  try{await navigator.clipboard.writeText(t);toast('복사했어요. 게시판에 붙여 넣으세요.')}
+  catch(e){const x=document.createElement('textarea');x.value=t;document.body.appendChild(x);x.select();
+    try{document.execCommand('copy');toast('복사했어요. 게시판에 붙여 넣으세요.')}catch(_){toast('복사하지 못했어요')}x.remove()}
+});
+$('#imgBtn').addEventListener('click',async()=>{
+  if(typeof html2canvas==='undefined'){toast('이미지 도구를 불러오지 못했어요');return}
+  document.querySelectorAll('.hint-btn').forEach(b=>b.style.visibility='hidden');
+  const bg=getComputedStyle(document.body).backgroundColor;
+  const canvas=await html2canvas($('#sheet'),{backgroundColor:getComputedStyle($('#sheet')).backgroundColor||bg,scale:2});
+  document.querySelectorAll('.hint-btn').forEach(b=>b.style.visibility='');
+  canvas.toBlob(b=>{const o=state();offerFile(`나침반활동지_${o.num||''}${o.nick||''}.png`,b)},'image/png');
+});
+if(!SCRIPT_URL)$('#submitBtn').style.display='none';
+$('#submitBtn').addEventListener('click',async()=>{
+  const o=state();
+  if(!o.num.trim()||!o.nick.trim()){toast('번호와 이름을 먼저 써 주세요');$('#num').focus();return}
+  const filled=Object.keys(dirs).filter(k=>o[k].trim()).length;
+  if(filled<4&&!confirm(`아직 ${4-filled}방향이 비어 있어요. 그래도 제출할까요?`))return;
+  const b=$('#submitBtn');b.disabled=true;b.textContent='제출하는 중…';
+  try{
+    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(o)});
+    toast('제출했어요!');b.textContent='다시 제출하기';
+  }catch(e){toast('제출하지 못했어요. 인터넷 연결을 확인해 주세요.');b.textContent='선생님께 제출하기'}
+  b.disabled=false;
+});
+$('#printBtn').addEventListener('click',()=>window.print());
+$('#resetBtn').addEventListener('click',()=>{
+  if(!confirm('쓴 내용을 모두 지울까요? (모둠·번호·이름은 남아요)'))return;
+  ['atitle','apress','asum'].forEach(f=>$('#'+f).value='');Object.keys(dirs).forEach(k=>ta(k).value='');
+  refresh();save();toast('새 활동지를 준비했어요');
+});
+</script>
+</body>
+</html>
